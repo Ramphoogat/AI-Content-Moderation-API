@@ -4,7 +4,7 @@ from typing import List, Tuple
 # Simple hardcoded rules for fallback/augmentation
 # In production, these should be loaded from a config file or DB
 BAD_PATTERNS = {
-    "hate": [r"\b(hate|kill)\s+(all)\b", r"racial_slur_placeholder"],
+    "hate": [r"\b(hate|kill)\s+(all|everyone)\b", r"racial_slur_placeholder"],
     "spam": [r"\b(buy|free)\s+(crypto|bitcoin)\b", r"click\s+here"],
     "sexual": [r"xxx", r"porn"]
 }
