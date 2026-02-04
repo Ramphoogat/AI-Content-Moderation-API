@@ -7,7 +7,7 @@ from typing import List, Tuple
 
 # 🔴 HATE / ABUSE
 HATE_PATTERNS = [
-    r"\b(hate|kill|destroy)\s+(all|every|those)\b",
+    r"\b(hate|kill|destroy)\s+(all|every|those|everyone|everybody|everything)\b",
     r"\b(go\s+back\s+to\s+your)\b",
     r"\b(you\s+people)\b",
     r"\b(subhuman|vermin|scum)\b",
