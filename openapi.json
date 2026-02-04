@@ -1,0 +1,341 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "AI Content Moderation API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/v1/moderate/text": {
+      "post": {
+        "tags": [
+          "moderation"
+        ],
+        "summary": "Moderate Text",
+        "description": "Moderate text content for hate speech, violence, and other categories.",
+        "operationId": "moderate_text_api_v1_moderate_text_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModerationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModerationResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/metrics": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Get Metrics",
+        "description": "Admin: Get simple usage metrics.",
+        "operationId": "get_metrics_api_v1_admin_metrics_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/export_csv": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Export Logs",
+        "description": "Admin: Export audit log (last N records).",
+        "operationId": "export_logs_api_v1_admin_export_csv_get",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1000,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "summary": "Root",
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health Check",
+        "operationId": "health_check_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CategoryScores": {
+        "properties": {
+          "hate": {
+            "type": "number",
+            "title": "Hate",
+            "default": 0.0
+          },
+          "harassment": {
+            "type": "number",
+            "title": "Harassment",
+            "default": 0.0
+          },
+          "sexual": {
+            "type": "number",
+            "title": "Sexual",
+            "default": 0.0
+          },
+          "self_harm": {
+            "type": "number",
+            "title": "Self Harm",
+            "default": 0.0
+          },
+          "violence": {
+            "type": "number",
+            "title": "Violence",
+            "default": 0.0
+          },
+          "spam": {
+            "type": "number",
+            "title": "Spam",
+            "default": 0.0
+          }
+        },
+        "type": "object",
+        "title": "CategoryScores"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "ModerationRequest": {
+        "properties": {
+          "content": {
+            "type": "string",
+            "maxLength": 10000,
+            "minLength": 1,
+            "title": "Content",
+            "description": "The text content to moderate"
+          },
+          "language": {
+            "type": "string",
+            "title": "Language",
+            "description": "Language code (e.g., 'en', 'hi') or 'auto'",
+            "default": "auto"
+          },
+          "strictness": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ],
+            "title": "Strictness",
+            "description": "Sensitivity of the AI moderation",
+            "default": "medium"
+          },
+          "return_spans": {
+            "type": "boolean",
+            "title": "Return Spans",
+            "description": "Whether to return specific flagged phrases",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "content"
+        ],
+        "title": "ModerationRequest"
+      },
+      "ModerationResponse": {
+        "properties": {
+          "allowed": {
+            "type": "boolean",
+            "title": "Allowed"
+          },
+          "risk_score": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Risk Score",
+            "description": "Overall risk score 0-100"
+          },
+          "categories": {
+            "$ref": "#/components/schemas/CategoryScores"
+          },
+          "flagged_phrases": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Flagged Phrases",
+            "default": []
+          },
+          "explanation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Explanation"
+          },
+          "request_id": {
+            "type": "string",
+            "title": "Request Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "allowed",
+          "risk_score",
+          "categories",
+          "request_id"
+        ],
+        "title": "ModerationResponse"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "APIKeyHeader": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key"
+      }
+    }
+  }
+}
