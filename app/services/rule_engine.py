@@ -1,3 +1,4 @@
+import re
 from typing import List, Tuple
 
 # Simple hardcoded rules for fallback/augmentation
